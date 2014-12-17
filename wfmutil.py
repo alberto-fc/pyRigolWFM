@@ -5,7 +5,7 @@ import argparse
 import collections
 import sys
 
-import wfm
+import wfm_ds
 
 # Copyright (c) 2013, Matthias Blaicher
 # All rights reserved.
