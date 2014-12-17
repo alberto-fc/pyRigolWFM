@@ -1,5 +1,7 @@
 # Python RIGOL oscilloscopes waveform library & tools
 
+EDIT
+
 While RIGOL oscilloscopes offer great value for money there seems to be a great lack of tools to read RIGOL oscilloscopes waveform (WFM) files.
 
 Based on the [protocol](http://meteleskublesku.cz/wfm_view/file_wfm.zip) extracted by the [wfm_view](http://meteleskublesku.cz/wfm_view/) project this project implements a feature complete WFM reader library.
