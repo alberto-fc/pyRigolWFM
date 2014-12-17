@@ -357,7 +357,7 @@ def parseRigolWFM(f, strict=True):
       channelDict["samplerate"] = timebase["smpRate"]
       channelDict["timeScale"] = 1./timebase["smpRate"]
       channelDict["timeDelay"] = 1e-12 * timebase['delayM']
-      channelDict["timeDiv"] = timebase['scaleM'] * 1e-12 
+      channelDict["timeDiv"] = timebase['scaleM'] #* 1e-12 
       
       channelDict["samples"]["time"] = [
         (t - samples/2) * channelDict["timeScale"] + channelDict["timeDelay"]
@@ -392,7 +392,7 @@ def parseRigolWFM(f, strict=True):
         
     channelDict["timeScale"] = 1./channelDict["samplerate"]
     channelDict["timeDelay"] = 1e-12 * timebase['delayM']
-    channelDict["timeDiv"] = timebase['scaleM'] * 1e-12 
+    channelDict["timeDiv"] = timebase['scaleM']# * 1e-12 
     
     channelDict["samples"]["time"] = [
       (t - samples/2) * channelDict["timeScale"] + channelDict["timeDelay"]
@@ -452,7 +452,7 @@ def describeScopeData(scopeData):
     ('scale'             , ("Y grid scale", "%0.3e V/div")),
     ('shift'             , ("Y shift", "%0.3e V")),
     ('inverted'          , ("Y inverted", "%s")),
-    ('timeDiv'           , ("Time grid scale", "%0.3e s/div")),
+    ('timeDiv'           , ("Time grid scale", "%x s/div")),
     ('samplerate'        , ("Samplerate", "%0.3e Samples/s")),
     ('timeDelay'         , ("Time delay", "%0.3e s")),
     ('nsamples'          , ("No. of recorded samples", "%i")),
