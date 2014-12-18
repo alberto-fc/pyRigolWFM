@@ -71,11 +71,13 @@ def _parseFile(f, description, leading="<", strict = True):
 
 def parseRigolWFM(f, strict=True):
   chan_header  = (
-  	("padding1",	"29s",	None),
+  	("padding1",	"14s",	None),
+  	("enabled",		"B",		None),
+  	("padding2",	"14s",	None),
     ("probeAtt",	"c",		None),
-    ("padding2",	"3s",		None),
+    ("padding3",	"3s",		None),
     ("scaleV",		"q",		None),
-    ("padding3",	"16s",	None),
+    ("padding4",	"16s",	None),
     ("name",			"3s",		None),
   )
   time_header  = (
@@ -86,6 +88,7 @@ def parseRigolWFM(f, strict=True):
   wfm_header = (
     ("magic",    	"H",			("require", "==", 0xFF01)),
     ("padding1", 	"2013s",  None),
+    #("padding1", 	"1980s",  None), DS1104Z
     ("time1", 		"nested", time_header),
     ("channel4", 	"nested", chan_header),
     ("channel3", 	"nested", chan_header),
@@ -139,7 +142,7 @@ def parseRigolWFM(f, strict=True):
   
   
   for i in range(4):
-  	printf("%s\n", fileHdr["channels"][i]["name"]);
+  	printf("%s %i\n", fileHdr["channels"][i]["name"], fileHdr["channels"][i]["enabled"]);
   	fileHdr["channels"][i]["probeScale"] = probeScale(fileHdr["channels"][i]["probeAtt"])
   	fileHdr["channels"][i]["offsetScaled"] = fileHdr["offset"][i] * fileHdr["channels"][i]["probeScale"];
   	#printf("Probe attenuation \t\t%0.1f\n", fileHdr["channels"][i]["probeScale"]);
@@ -150,6 +153,28 @@ def parseRigolWFM(f, strict=True):
   
   printScale("Time grid scale", fileHdr["timeDiv"], "ns/div", 1)
   
+  filePosition = f.tell() + 848
+  f.seek(0, os.SEEK_END)
+  fileSize = f.tell()
+  f.seek(filePosition)
+  
+  printf("%x\n", f.tell());
+  
+  nBytes = (fileSize - filePosition)
+  sampleData = array.array('B')
+  sampleData.fromfile(f, nBytes)
+  fileHdr["channels"][0]['data'] = sampleData
+  samples = len(fileHdr["channels"][0]['data'])
+  
+  scale_time = float(fileHdr["timeDiv"] * 1e-9) * 12
+  scale_time = scale_time / (samples - 512)
+
+  #scale_time = 1./(float(fileHdr["timeDiv"]) * 1e-6)
+  #scale_time = float(samples)/scale_time
+  printf("samples: %i %6.3e\n", samples, scale_time);
+  #fileHdr["time"] = [(t - samples/2) * 1 for t in range(samples)]
+  fileHdr["time"] = [(t) * scale_time for t in range(samples)]
+
   return fileHdr
   
 def describeScopeData(scopeData):

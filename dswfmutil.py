@@ -24,6 +24,36 @@ if __name__ == "__main__":
   except wfm.FormatError as e:
     sys.exit()
   
+  if args.action == "plot":
+    import numpy as np
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    import scipy
+    import scipy.fftpack
+    
+    mpl.rcParams['agg.path.chunksize'] = 100000
+    
+    plt.subplot(211)
+    plt.plot(scopeData["time"], scopeData["channels"][0]['data'])
+    plt.grid()
+    plt.ylabel("Voltage [V]")
+    
+    plt.title("Waveform")
+    plt.xlabel("Time [s]")
+    
+    plt.subplot(212)
+    signal = np.array(scopeData["channels"][0]['data'])
+    fft = np.abs(np.fft.fftshift(scipy.fft(signal)))
+    freqs = np.fft.fftshift(scipy.fftpack.fftfreq(signal.size, scopeData["timeDiv"]))
+    plt.plot(freqs, 20 * np.log10(fft))
+      
+    plt.grid()
+    plt.title("FFT")
+    plt.ylabel("Magnitude [dB]")
+    plt.xlabel("Frequency [Hz]")
+      
+    plt.show()
+    
   #scopeDataDsc = wfm.describeScopeData(scopeData)
   
   #if args.action == "info":

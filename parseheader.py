@@ -8,7 +8,8 @@ def printf(str, *args):
 
 def RunMain():
 	
-	f = open("header.wfm", "rb")
+	#f = open("header.wfm", "rb")
+        f = open("samples/CH2-CH4-250Msample-5ns-test1.wfm", "rb")
 	strPack = sys.argv[1];
 	packSize = calcsize(strPack);
 	offset = int(sys.argv[3]);
