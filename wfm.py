@@ -139,6 +139,7 @@ def parseRigolWFM(f, strict=True):
 	
 	
   fileHdr["timeDiv"] = scale_ns
+  activeChannels = 0
   
   
   for i in range(4):
@@ -149,8 +150,11 @@ def parseRigolWFM(f, strict=True):
   	printScale("Probe attenuation", fileHdr["channels"][i]["probeScale"], "X", 1)
   	printScale("Y grid scale", fileHdr["channels"][i]["scaleV"], "V/div", 1e-9);
   	printScale("Y shift", fileHdr["channels"][i]["offsetScaled"], "V", 1e-6);
+  	if ( fileHdr["channels"][i]["enabled"] == 1 ):
+  		activeChannels += 1
   	printf("\n");
   
+  fileHdr["activeChannels"] = activeChannels
   printScale("Time grid scale", fileHdr["timeDiv"], "ns/div", 1)
   
   filePosition = f.tell() + 848
@@ -160,14 +164,37 @@ def parseRigolWFM(f, strict=True):
   
   printf("%x\n", f.tell());
   
-  nBytes = (fileSize - filePosition)
+  nBytes = (fileSize - filePosition) - 512
+  """
   sampleData = array.array('B')
   sampleData.fromfile(f, nBytes)
   fileHdr["channels"][0]['data'] = sampleData
   samples = len(fileHdr["channels"][0]['data'])
+  """
+ 
+  printf("Active channels %i\n", activeChannels);
+  sampleData = []
+  for i in range(activeChannels):
+  	sampleData.append(array.array('B'))
+  	
+  #sampleData1 = array.array('B')
+  #sampleData2 = array.array('B')
+  bytesPerChannel = nBytes/activeChannels
   
+  for total in range(bytesPerChannel):
+  	for i in range(activeChannels):
+  		sampleData[i].fromfile(f, 1)
+
+	for i in range(activeChannels):
+		fileHdr["channels"][i]['data'] = sampleData[i]
+
+  samples = len(fileHdr["channels"][0]['data'])
+  	
   scale_time = float(fileHdr["timeDiv"] * 1e-9) * 12
-  scale_time = scale_time / (samples - 512)
+  scale_time = scale_time / samples
+  
+  fileHdr["channels"][0]["volts"] = [ ( x/20. ) - 1 for x in fileHdr["channels"][0]["data"] ]
+  #[((125-x)/25.*channelDict["scale"] - channelDict["shift"])*sign for x in channelDict["samples"]["raw"]]
 
   #scale_time = 1./(float(fileHdr["timeDiv"]) * 1e-6)
   #scale_time = float(samples)/scale_time

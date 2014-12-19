@@ -34,7 +34,10 @@ if __name__ == "__main__":
     mpl.rcParams['agg.path.chunksize'] = 100000
     
     plt.subplot(211)
-    plt.plot(scopeData["time"], scopeData["channels"][0]['data'])
+    for i in range(scopeData["activeChannels"]):
+    	#plt.plot(scopeData["time"], scopeData["channels"][i]['data'])
+    	plt.plot(scopeData["time"], scopeData["channels"][i]["volts"])
+
     plt.grid()
     plt.ylabel("Voltage [V]")
     
