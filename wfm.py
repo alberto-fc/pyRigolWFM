@@ -6,6 +6,10 @@ import array
 import sys
 import os
 
+# I just raped the copyright header, is  really annoying work with
+# that much text here
+# Copyright (c) 2013, Matthias Blaicher (#TODO Add the license)
+
 def printf(str, *args):
     print str % args,
 
@@ -193,7 +197,10 @@ def parseRigolWFM(f, strict=True):
   scale_time = float(fileHdr["timeDiv"] * 1e-9) * 12
   scale_time = scale_time / samples
   
-  fileHdr["channels"][0]["volts"] = [ ( x/20. ) - 1 for x in fileHdr["channels"][0]["data"] ]
+  for i in range(activeChannels):
+  	voltageValue = ( 56./3. ) / ( fileHdr["channels"][i]["scaleV"] * 1e-9 )
+  	fileHdr["channels"][i]["volts"] = [ ( x/voltageValue ) - 1 for x in fileHdr["channels"][i]["data"] ]
+  	
   #[((125-x)/25.*channelDict["scale"] - channelDict["shift"])*sign for x in channelDict["samples"]["raw"]]
 
   #scale_time = 1./(float(fileHdr["timeDiv"]) * 1e-6)
